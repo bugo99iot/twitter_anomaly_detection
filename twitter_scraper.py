@@ -5,7 +5,6 @@ import numpy as np
 import pandas as pd
 import time
 from numpy import ones, convolve
-import numpy as numpy
 import sys
 import schedule
 import matplotlib.pyplot as plt
@@ -103,15 +102,16 @@ def plot_retweets():
     if window_size > len(vector):
         window_size = len(vector)
     #print vector
-    mask = numpy.ones(int(window_size))/float(window_size)
+    mask = np.ones(int(window_size))/float(window_size)
     #print mask
-    convolved = numpy.convolve(vector, mask, 'same')
+    rolling_mean = np.convolve(vector, mask, 'full')[:len(vector)]
+    
     t=np.arange(len(vector))
 
     #plt.style.use('fivethirtyeight')
     plt.style.use('ggplot')
     plt.plot(t,vector,color="r", label="Number of retweets in last 15m", marker='o', linewidth=2.0)
-    plt.plot(t,convolved, color="b", label="Moving mean.", marker='o', linewidth=2.0)
+    plt.plot(t,rolling_mean, color="b", label="Moving mean.", marker='o', linewidth=2.0)
     plt.xlabel("Time elapsed in 15m steps")
     plt.ylabel("Retweets")
     plt.suptitle("Automated anomaly detection in Twitter data", fontweight='bold')
@@ -123,14 +123,44 @@ def plot_retweets():
     #plt.matplotlib.rcParams.update({'font.size': 34})
     plt.savefig("tweets.png")
     plt.close()
-    std = convolved.std()
-    #print std
-    mean = convolved.mean()
-    #print mean
+    rolling_std = pd.rolling_std(vector,window_size)
+    rolling_std = np.nan_to_num(rolling_std)
     #we define anomaly as a quantity two standard deviations away from the mean
-    if vector[-1] > (mean + 2*std) or vector[-1] < (mean - 2*std):     
-        print "We detected an anomaly here: ", df.iloc[-1,2], "at time: ", df.iloc[-1,1]
+    #we allow only positive anomalies in this case
+    print vector[-1], rolling_mean[-1],rolling_std[-1]
+    if vector[-1] > (rolling_mean[-1] + rolling_std[-1]):    
+        text =  "We detected an anomaly: " + str(df.iloc[-1,2]) + "at time: " + str(df.iloc[-1,1])
+        print text
+        try:
+            send_mail(text)
+        except Exception:
+            print "Email service failed."
+            
     return
+
+def send_mail(text):
+    import smtplib
+    from email.MIMEMultipart import MIMEMultipart
+    from email.MIMEText import MIMEText
+
+    gmailUser = 'developer.tadaaaaa@gmail.com'
+    gmailPassword = 'aa9jj7oo3mm5KK9'
+    recipient = 'ugo.bertello@gmail.com'
+    message = text
+
+    msg = MIMEMultipart()
+    msg['From'] = gmailUser
+    msg['To'] = recipient
+    msg['Subject'] = "BIG NEWS!"
+    msg.attach(MIMEText(message))
+
+    mailServer = smtplib.SMTP('smtp.gmail.com', 587)
+    mailServer.ehlo()
+    mailServer.starttls()
+    mailServer.ehlo()
+    mailServer.login(gmailUser, gmailPassword)
+    mailServer.sendmail(gmailUser, recipient, msg.as_string())
+    mailServer.close()
 
 
 #we shedule the update of the database every minute
@@ -144,5 +174,3 @@ schedule.every(20).minutes.do(plot_retweets)
 while True:
     schedule.run_pending()
     #time.sleep(1)
-
-
