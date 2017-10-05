@@ -129,7 +129,7 @@ def plot_retweets():
     #print mean
     #we define anomaly as a quantity two standard deviations away from the mean
     if vector[-1] > (mean + 2*std) or vector[-1] < (mean - 2*std):     
-        print "We detected an anomaly here: ", df.iloc[-1,2], ", with retweets: ", df.iloc[-1,0], "at time: ", df.iloc[-1,1]
+        print "We detected an anomaly here: ", df.iloc[-1,2], "at time: ", df.iloc[-1,1]
     return
 
 
