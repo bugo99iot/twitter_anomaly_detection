@@ -110,9 +110,9 @@ def plot_retweets():
 
     #plt.style.use('fivethirtyeight')
     plt.style.use('ggplot')
-    plt.plot(t,vector,color="r", label="Number of retweets in last 15m", marker='o', linewidth=2.0)
+    plt.plot(t,vector,color="r", label="Number of retweets in last 20m", marker='o', linewidth=2.0)
     plt.plot(t,rolling_mean, color="b", label="Moving mean.", marker='o', linewidth=2.0)
-    plt.xlabel("Time elapsed in 15m steps")
+    plt.xlabel("Time elapsed in 20m steps")
     plt.ylabel("Retweets")
     plt.suptitle("Automated anomaly detection in Twitter data", fontweight='bold')
     if len(vector) >= 50:
