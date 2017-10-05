@@ -1,5 +1,5 @@
 # twitter_anomaly_detection
-This codes retrieves average number of retweets for all tweets of a given Twitter actor in the last n minutes.
+This codes retrieves average number of retweets for all tweets tweeted by a given Twitter actor in the last n minutes.
 The average retweets is plotted in real time against the convolutional (moving) average over the last m measurements and statistical anomalies are detected (e.g. a sharp increase/decrease in retweets).
 
 # The plot
