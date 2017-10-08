@@ -1,8 +1,3 @@
-#NOTE! Amend it for std of residuals
-#https://www.datascience.com/blog/python-anomaly-detection
-#watch out, std and mean are shifted
-
-
 from __future__ import division
 import requests
 from bs4 import BeautifulSoup
