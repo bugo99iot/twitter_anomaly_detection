@@ -1,3 +1,8 @@
+#NOTE! Amend it for std of residuals
+#https://www.datascience.com/blog/python-anomaly-detection
+#watch out, std and mean are shifted
+
+
 from __future__ import division
 import requests
 from bs4 import BeautifulSoup
@@ -56,6 +61,7 @@ def update_dataframes():
                     tweet_user = tweet.find('span',{"class":'username'}).text.strip()
                     tweet_text = tweet.find('p',{"class":'tweet-text'}).text.encode('utf8').strip()
                     tweet_text = tweet_text.replace("https://"," https://")
+                    tweet_text = tweet_text.replace("http://"," http://")
                     #replies = tweet.find('span',{"class":"ProfileTweet-actionCount"}).text.strip()
                     retweets = tweet.find('span', {"class" : "ProfileTweet-action--retweet"}).text.strip()
                     #here improve code by using regex
@@ -89,7 +95,6 @@ def update_dataframes():
         with open('avg_historical.csv', "a") as g:
             new_df.to_csv(g, header=False, index=False)
         print "There was an error on: ", current_time_read
-
     return
 
 #we plot retweets together with comoving mean
@@ -105,29 +110,38 @@ def plot_retweets():
     mask = np.ones(int(window_size))/float(window_size)
     #print mask
     rolling_mean = np.convolve(vector, mask, 'full')[:len(vector)]
+
+    #you could also plot the centered rolling mean or the residuals
+    #rolling_mean_centered = np.convolve(vector, mask, 'same')
+    #residuals = vector - rolling_mean
     
     t=np.arange(len(vector))
-
-    #plt.style.use('fivethirtyeight')
+    #plt.figure(1)
     plt.style.use('ggplot')
-    plt.plot(t,vector,color="r", label="Number of retweets in last 20m", marker='o', linewidth=2.0)
+    #plt.subplot(211)
+    plt.plot(t,vector,color="r", label="Number of retweets in last 15m", marker='o', linewidth=2.0)
     plt.plot(t,rolling_mean, color="b", label="Moving mean.", marker='o', linewidth=2.0)
-    plt.xlabel("Time elapsed in 20m steps")
+    plt.xlabel("Time elapsed in 15m steps")
     plt.ylabel("Retweets")
     plt.suptitle("Automated anomaly detection in Twitter data", fontweight='bold')
-    if len(vector) >= 50:
-        plt.xlim(len(vector)-50,len(vector))
+    if len(vector) >= 20:
+        plt.xlim(len(vector)-20,len(vector))
     else:
         plt.xlim(0,len(vector))
     plt.legend(loc='upper right')
     #plt.matplotlib.rcParams.update({'font.size': 34})
+    """plt.subplot(212)
+    plt.plot(t,residuals,color="k", label="Residuals", marker='x', linewidth=2.0)
+    if len(vector) >= 20:
+        plt.xlim(len(vector)-20,len(vector))
+    else:
+        plt.xlim(0,len(vector))"""
     plt.savefig("tweets.png")
     plt.close()
     rolling_std = pd.rolling_std(vector,window_size)
     rolling_std = np.nan_to_num(rolling_std)
     #we define anomaly as a quantity two standard deviations away from the mean
     #we allow only positive anomalies in this case
-    print vector[-1], rolling_mean[-1],rolling_std[-1]
     if vector[-1] > (rolling_mean[-1] + rolling_std[-1]):    
         text =  "We detected an anomaly: " + str(df.iloc[-1,2]) + "at time: " + str(df.iloc[-1,1])
         print text
@@ -164,13 +178,17 @@ def send_mail(text):
 
 
 #we shedule the update of the database every minute
-schedule.every(20).minutes.do(update_dataframes)
-schedule.every(20).minutes.do(plot_retweets)
+#schedule.every(20).minutes.do(update_dataframes)
+#schedule.every(20).minutes.do(plot_retweets)
 #use .do(update_dataframes,'Input') if function takes arguments
 #schedule.every().hour.do(job)
 #schedule.every().day.at("10:30").do(job)
 
 #we run the schedule and let the program sleep in between runs
 while True:
-    schedule.run_pending()
-    #time.sleep(1)
+    #schedule.run_pending()
+    update_dataframes()
+    plot_retweets()
+    secs = 60*20
+    time.sleep(secs)
+
