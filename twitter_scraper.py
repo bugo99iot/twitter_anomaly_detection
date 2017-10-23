@@ -162,9 +162,9 @@ def send_mail(text):
     msg = EmailMessage()
     msg.set_content(text)
 
-    sender = 'developer.tadaaaaa@gmail.com'
-    password = 'aa9jj7oo3mm5KK9'
-    receiver = 'ugo.bertello@gmail.com'
+    sender = 'your.sender@gmail.com'
+    password = 'yourpassword'
+    receiver = 'your.receiver@gmail.com'
 
     msg['Subject'] = "WARNING"
     msg['From'] = sender
