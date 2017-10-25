@@ -7,8 +7,12 @@ Positive anomailes are emailed to a target user with the headline: "BIG NEWS!".
 Demonstratively, we applied the algorithm to [Reuters]' twitter page on a short 3-hours time window. At 2 sigma level, no anomaly was detected (no "big news" was issued in the window). Results may be visualised in the png file attached.
 UPDATE: on a 12 hours test run performed on the 6th of October 2017, the algorithm was able to detect (1-sigma) anomalies related to the 6.3 magnitude earthquake recorded off eastern Japan and the anti-nuclear campaign 2017 Peace Nobel Price.
 
+# Blog
+I have very briefly dicussed about this project on [Medium].
+
 # License
 Released under version 2.0 of the [Apache License].
 
 [Apache license]: http://www.apache.org/licenses/LICENSE-2.0
 [Reuters]: https://twitter.com/reuters
+[Medium]: https://medium.com/@ugo.bertello/automated-anomaly-detection-in-twitter-with-beautiful-soup-b9704ebd0d64
